@@ -1,3 +1,3 @@
-public class plantillaValores {
+public class PlantillaValores {
 
 }
