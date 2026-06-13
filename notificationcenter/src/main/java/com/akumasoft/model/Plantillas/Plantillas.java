@@ -1,4 +1,4 @@
-package com.akumasoft.model;
+package com.akumasoft.model.Plantillas;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,9 +15,10 @@ import lombok.Data;
 public class Plantillas {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private UUID id;
     
-    private UUID template_id;
-    private String asunto;
-    private String contentHTML;
+    private String nombre;
+    private String codigo;
+    private String archivo;
+    private LocalDateTime fechaCreado;
 }

@@ -1,5 +1,4 @@
-package com.akumasoft.model;
-import java.lang.annotation.Inherited;
+package com.akumasoft.model.Emails;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -9,21 +8,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+
 @Entity
-@Table(name = "notificaciones")
+@Table(name = "prog")
 @Data
-public class Notificaciones {
+public class Programados {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-    
-    private UUID template_id;
+    private UUID id;
+    private UUID solicitudId;
     private String asunto;
     private String contentHTML;
-    private String correo_destino;
-    private String correo_cc;
-    private String correo_bcc;
-    private LocalDateTime programado_date;
-    private LocalDateTime enviado_date;
-    private boolean enviado;
+    private String correoDestino;
+    private String correoCc;
+    private String correoBcc;
+
+    private LocalDateTime  fechaProgramado;
+    private LocalDateTime fechaCreado;
+    private boolean procesada;
 }

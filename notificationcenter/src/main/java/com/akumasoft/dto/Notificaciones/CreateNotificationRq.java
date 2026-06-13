@@ -1,4 +1,4 @@
-package main.java.com.akumasoft.dto;
+package com.akumasoft.dto.Notificaciones;
 import java.time.LocalDateTime;
 public record CreateNotificationRq(
     String asunto,
