@@ -2,6 +2,7 @@ package com.akumasoft.model.Emails;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,12 +19,25 @@ public class Programados {
     private UUID id;
     private UUID solicitudId;
     private String asunto;
-    private String contentHTML;
-    private String correoDestino;
-    private String correoCc;
-    private String correoBcc;
 
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String contentHTML;
+    
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String correoDestino;
+    
+    @Column(columnDefinition = "TEXT")
+    private String correoCc;
+    
+    @Column(columnDefinition = "TEXT")
+    private String correoBcc;
+    
+    @Column(name = "fecha_programado", nullable = false)
     private LocalDateTime  fechaProgramado;
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "fecha_creado", nullable = false, updatable = false)
     private LocalDateTime fechaCreado;
+    
     private boolean procesada;
 }

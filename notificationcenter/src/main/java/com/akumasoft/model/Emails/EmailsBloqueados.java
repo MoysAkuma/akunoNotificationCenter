@@ -2,6 +2,7 @@ package com.akumasoft.model.Emails;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +18,13 @@ public class EmailsBloqueados {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(name = "fecha_creado", nullable = false, updatable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private LocalDateTime fechaCreado;
+    
+    @Column(nullable = false)
     private boolean activo;
 }
