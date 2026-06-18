@@ -20,7 +20,7 @@ public class Queque {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(name = "cliente_id", nullable = false)
-    private UUID clienteId;
+    private Long clienteId;
     @Column(name = "solicitud_id", nullable = false)
     private Long solicitudId;
     @Column(name = "plantilla_id", nullable = false)

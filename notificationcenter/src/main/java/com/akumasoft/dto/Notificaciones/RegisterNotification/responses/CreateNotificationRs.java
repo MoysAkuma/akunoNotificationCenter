@@ -1,9 +1,8 @@
 package com.akumasoft.dto.Notificaciones.RegisterNotification.responses;
 
-import java.util.UUID;
 
-public record CreateNotification200Rs(
-    UUID solicitudId,
+public record CreateNotificationRs(
+    long solicitudId,
     String mensaje,
     String status
 ) {
