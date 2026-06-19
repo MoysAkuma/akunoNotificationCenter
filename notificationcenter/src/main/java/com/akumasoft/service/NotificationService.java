@@ -11,6 +11,7 @@ import com.akumasoft.repository.EmailsBloqueadosRepository;
 import com.akumasoft.repository.QuequeRepository;
 import com.akumasoft.repository.SolicitudesRepository;
 import com.akumasoft.model.Emails.Queque;
+import com.akumasoft.mapper.NotificationMapper;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +26,21 @@ public class NotificationService {
     private final QuequeRepository quequeRepository;
     
     @Transactional
-    public Long crearSolicitud(RegisterNotificationRq solicitud) {
+    public long crearSolicitud(RegisterNotificationRq solicitud) {
         // Verificar si el correo de destino está bloqueado
         if (emailsBloqueadosRepository.existsByEmail(solicitud.correo_destino())) {
             log.info("El email {} está bloqueado. No se puede crear la solicitud.", solicitud.correo_destino());
-            return null; // O lanzar una excepción personalizada
+            return -1; // O lanzar una excepción personalizada
         }
-        
+
         //Registrar la solicitud
-        Solicitudes solicitudEntity = crearSolicitudEntity(solicitud);
+        Solicitudes solicitudEntity = new NotificationMapper().toDto(solicitud);
         solicitudesRepository.createSolicitud(solicitudEntity);
+        
+        //Obtener los valores de la plantilla y reemplazar en el contenido HTML, luego guardar el contenido HTML en la entidad Solicitudes
+        
+        
+        
         log.info("Solicitud creada con ID: {}", solicitudEntity.getId());
 
         //si viene programada, no se agrega a la cola, se espera a que el scheduler la procese
@@ -50,17 +56,6 @@ public class NotificationService {
         return solicitudEntity.getId();
     }
 
-    private Solicitudes crearSolicitudEntity(RegisterNotificationRq solicitud) {
-        Solicitudes solicitudEntity = new Solicitudes();
-        solicitudEntity.setPlantillaId(solicitud.plantillaId());
-        solicitudEntity.setCorreoDestino(solicitud.correo_destino());
-        solicitudEntity.setAsunto(solicitud.asunto());
-        solicitudEntity.setCorreoCc(solicitud.correo_cc());
-        solicitudEntity.setCorreoBcc(solicitud.correo_bcc());
-        solicitudEntity.setProgramadoDate(solicitud.programado_date());
-        solicitudEntity.setEstado("PENDIENTE");
-        return solicitudEntity;
-    }
 
     private Queque crearQuequeEntity(Solicitudes solicitudEntity) {
         Queque quequeEntity = new Queque();

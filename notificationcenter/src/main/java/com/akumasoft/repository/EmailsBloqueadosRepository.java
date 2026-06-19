@@ -7,5 +7,4 @@ import com.akumasoft.model.Emails.EmailsBloqueados;
 public interface EmailsBloqueadosRepository extends JpaRepository<EmailsBloqueados, Long> {
     boolean existsByEmail(String email);
     List<EmailsBloqueados> findAll();
-
 }

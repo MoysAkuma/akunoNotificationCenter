@@ -25,8 +25,6 @@ public class Solicitudes {
     private long clienteId;
     @Column(name = "asunto", nullable = false)
     private String asunto;
-    @Column(name = "content_html", columnDefinition = "TEXT", nullable = false)
-    private String contentHTML;
     @Column(name = "correo_destino", columnDefinition = "TEXT", nullable = false)
     private String correoDestino;
     @Column(name = "correo_cc", columnDefinition = "TEXT")
