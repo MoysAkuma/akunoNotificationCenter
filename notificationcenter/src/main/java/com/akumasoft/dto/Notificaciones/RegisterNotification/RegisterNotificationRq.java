@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import com.akumasoft.dto.Notificaciones.ValoresSolicitud;
-
 public record RegisterNotificationRq(
     UUID plantillaId,
     String correo_destino,

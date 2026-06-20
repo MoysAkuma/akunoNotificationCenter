@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.akumasoft.model.Emails.Plantillas;
 
 public interface PlantillasRepository extends JpaRepository<Plantillas, UUID> {
-    
+    Plantillas getPlantillaById(UUID id);
 }
