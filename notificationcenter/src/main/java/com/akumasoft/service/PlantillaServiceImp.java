@@ -21,14 +21,14 @@ public class PlantillaServiceImp implements PlantillaService {
     private final PlantillasRepository plantillasRepository;
 
     @Transactional
-    public boolean crearPlantilla(CreatePlantillaRq plantilla, UUID clienteId) {
+    public UUID crearPlantilla(CreatePlantillaRq plantilla, UUID clienteId) {
         // Crear la plantilla en la base de datos
-        Plantillas plantillaEntity = new PlantillaMapper().toDto(plantilla, clienteId);
+        Plantillas plantillaEntity = new PlantillaMapper().toPlantilla(plantilla, clienteId);
         
         plantillasRepository.save(plantillaEntity);
         
         log.info("Plantilla creada con ID: {}", plantillaEntity.getId());
         
-        return true;
+        return plantillaEntity.getId();
     }
 }

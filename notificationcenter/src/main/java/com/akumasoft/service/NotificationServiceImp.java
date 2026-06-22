@@ -66,6 +66,13 @@ public class NotificationServiceImp implements NotificationService {
         return solicitudEntity.getId();
     }
 
+    @Transient
+    public UUID crearPlantilla(Plantillas plantilla) {
+        Plantillas plantillaEntity = plantillasRepository.save(plantilla);
+        log.info("Plantilla creada con ID: {}", plantillaEntity.getId());
+        return plantillaEntity.getId();
+    }
+
 
     private Queque crearQuequeEntity(Solicitudes solicitudEntity, String contentHTML) {
         Queque quequeEntity = new Queque();
