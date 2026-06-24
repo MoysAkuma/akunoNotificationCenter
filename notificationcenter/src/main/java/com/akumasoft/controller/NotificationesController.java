@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,8 @@ import com.akumasoft.dto.Notificaciones.RegisterNotification.responses.CreateNot
 import com.akumasoft.dto.Plantilla.PlantillaDto;
 import com.akumasoft.dto.Plantilla.CreatePlantilla.CreatePlantillaRq;
 import com.akumasoft.dto.Plantilla.CreatePlantilla.responses.CreatePlantillaRs;
+import com.akumasoft.dto.Plantilla.EditarPlantilla.EditPlantillaRq;
+import com.akumasoft.dto.Plantilla.EditarPlantilla.EditPlantillaRs;
 import com.akumasoft.model.Emails.Solicitudes;
 import com.akumasoft.repository.SolicitudesRepository;
 import com.akumasoft.service.NotificationServiceImp;
@@ -78,6 +81,21 @@ public class NotificationesController {
     @GetMapping("/plantilla/{id}")
     public PlantillaDto getPlantillaById(@PathVariable UUID id, @RequestHeader("Cliente-Id") UUID clienteId) {
         return plantillaService.getPlantillaById(id, clienteId);
+    }
+
+    @PutMapping("/plantilla/{id}")
+    public ResponseEntity<EditPlantillaRs> editarPlantilla(
+        @PathVariable UUID id,
+        @RequestBody EditPlantillaRq request,
+        @RequestHeader("Cliente-Id") UUID clienteId,
+        @RequestHeader("Api-Key") String token
+    ) {
+        plantillaService.editarPlantilla(id, request, clienteId);
+        EditPlantillaRs response = new EditPlantillaRs(
+            "Plantilla editada exitosamente",
+            "EDITADA"
+        );
+        return ResponseEntity.ok(response);
     }
     
 }

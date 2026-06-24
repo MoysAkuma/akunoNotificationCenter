@@ -1,7 +1,11 @@
 package com.akumasoft.dto.Plantilla;
 
+import java.util.UUID;
+
 public record PlantillaDto(
+    UUID id,
     String nombre,
-    String asunto,
-    String cuerpo
+    String codigo,
+    String archivo,
+    UUID clienteId
 ) {}

@@ -3,6 +3,7 @@ package com.akumasoft.mapper;
 import java.util.List;
 import java.util.UUID;
 
+import com.akumasoft.dto.Plantilla.PlantillaDto;
 import com.akumasoft.dto.Plantilla.CreatePlantilla.CreatePlantillaRq;
 import com.akumasoft.dto.Plantilla.CreatePlantilla.CreateValores;
 import com.akumasoft.model.Emails.Plantillas;
@@ -19,6 +20,22 @@ public class PlantillaMapper {
        plantilla.setArchivo(request.archivo());
        plantilla.setClienteId(clienteId);
        return plantilla;
+    }
+
+    public PlantillaDto toPlantillaDto(Plantillas plantilla) {
+        if (plantilla == null) {
+            return null;
+        }
+        PlantillaDto resp = new PlantillaDto(
+            plantilla.getId(),
+            plantilla.getNombre(),
+            plantilla.getCodigo(),
+            plantilla.getArchivo(),
+            plantilla.getClienteId()
+        );
+       
+        return resp;
+        
     }
 
     public List<Valores> toValoresList(List<CreateValores> request, UUID plantillaId) {
