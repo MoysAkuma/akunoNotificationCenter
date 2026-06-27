@@ -7,4 +7,6 @@ public interface SolicitudesRepository extends JpaRepository<Solicitudes, Long> 
     long createSolicitud(Solicitudes solicitud);
 
     void setEstadoSolicitud(Long id, String estado);
+
+    Solicitudes getSolicitudById(Long id);
 }

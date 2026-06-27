@@ -9,5 +9,7 @@ import com.akumasoft.model.Emails.Queque;
 public interface QuequeRepository extends JpaRepository<Queque, UUID> {
     void createQueque(Queque queque);
 
-    void deleteQueque(UUID id);
+    void deleteQueque(long id);
+
+    String getStatusById(long id);
 }

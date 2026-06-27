@@ -17,7 +17,15 @@ public class Programados {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    private UUID solicitudId;
+    
+    @Column(name = "cliente_id", nullable = false)
+    private UUID clienteId;
+    
+    @Column(name = "solicitud_id", 
+    nullable = false)
+    private long solicitudId;
+    
+    @Column(name = "asunto", nullable = false)
     private String asunto;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -26,10 +34,10 @@ public class Programados {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String correoDestino;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "correo_cc", columnDefinition = "TEXT")
     private String correoCc;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "correo_bcc", columnDefinition = "TEXT")
     private String correoBcc;
     
     @Column(name = "fecha_programado", nullable = false)

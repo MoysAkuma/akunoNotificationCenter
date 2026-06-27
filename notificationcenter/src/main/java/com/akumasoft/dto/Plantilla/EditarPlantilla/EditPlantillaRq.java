@@ -11,6 +11,4 @@ public record EditPlantillaRq(
     String descripcion,
     String codigo,
     List<CreateValores> valores
-) {
-    
-}
+) { }

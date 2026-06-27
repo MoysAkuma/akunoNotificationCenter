@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
+import com.akumasoft.dto.Notificaciones.SolicitudDTO;
 import com.akumasoft.dto.Notificaciones.RegisterNotification.RegisterNotificationRq;
 import com.akumasoft.model.Emails.Solicitudes;
 import com.akumasoft.repository.EmailsBloqueadosRepository;
@@ -31,7 +32,8 @@ public class NotificationServiceImp implements NotificationService {
     private final ProgramadosRepository programadosRepository;
     
     @Transactional
-    public long crearSolicitud(RegisterNotificationRq solicitud) {
+    public long crearSolicitud(
+        RegisterNotificationRq solicitud, UUID clienteId) {
         // Verificar si el correo de destino está bloqueado
         if (emailsBloqueadosRepository.existsByEmail(solicitud.correo_destino())) {
             log.info("El email {} está bloqueado. No se puede crear la solicitud.", solicitud.correo_destino());
@@ -40,72 +42,78 @@ public class NotificationServiceImp implements NotificationService {
 
         //Registrar la solicitud
         Solicitudes solicitudEntity = new NotificationMapper().toDto(solicitud);
-        solicitudesRepository.createSolicitud(solicitudEntity);
+        long solicitudId = solicitudesRepository.createSolicitud(solicitudEntity);
         
         //Obtener los valores de la plantilla y reemplazar en el contenido HTML
-        Plantillas plantilla = plantillasRepository.getPlantillaById(solicitud.plantillaId());
+        Plantillas plantilla = plantillasRepository.findByIdAndClienteId(solicitud.plantillaId(), clienteId);
 
         //Obtener el contenido HTML de la plantilla y reemplazar los placeholders con los valores proporcionados en la solicitud
         String archivo = plantilla.getArchivo();
+
         //ACA IRA EL CONSUMO DEL BUCKET YA QUE TENGA LO NECESARIO PARA SU DESPLIEGUR
-        String contentHTML = new NotificationMapper().reemplazarPlaceholders("<html></html>", solicitud.valores());      
+        String contentHTML = new NotificationMapper().reemplazarPlaceholders("<html>{{name}}</html>", solicitud.valores());      
         
         log.info("Solicitud creada con ID: {}", solicitudEntity.getId());
 
         //si viene programada, no se agrega a la cola, se espera a que el scheduler la procese
         if (solicitud.programado_date() == null) {
             // Agregar a la cola para procesamiento inmediato
-            Queque quequeEntity = crearQuequeEntity(solicitudEntity, contentHTML);
+            Queque quequeEntity = new NotificationMapper().toQuequeEntity(solicitud, solicitudId, contentHTML, clienteId);
             quequeRepository.createQueque(quequeEntity);
-            log.info("Solicitud con ID: {} agregada a la cola para procesamiento inmediato.", solicitudEntity.getId());
+            log.info("Solicitud con ID: {} agregada a la cola para procesamiento inmediato.", solicitudId);
         } else {
-            Programados programadosEntity = crearProgramadosEntity(solicitudEntity, contentHTML);
+            Programados programadosEntity = new NotificationMapper().toProgramadosEntity(solicitud, solicitudId, contentHTML, clienteId);
             programadosRepository.createProgramados(programadosEntity);
-            log.info("Solicitud con ID: {} programada para fecha: {}", solicitudEntity.getId(), solicitud.programado_date());
+            log.info("Solicitud con ID: {} programada para fecha: {}", solicitudId, solicitud.programado_date());
         }
-        return solicitudEntity.getId();
+        return solicitudId;
     }
 
     @Transient
-    public UUID crearPlantilla(Plantillas plantilla) {
-        Plantillas plantillaEntity = plantillasRepository.save(plantilla);
-        log.info("Plantilla creada con ID: {}", plantillaEntity.getId());
-        return plantillaEntity.getId();
+    public boolean updateSolicitud(long id, RegisterNotificationRq solicitud, UUID clienteId) {
+        Solicitudes existingSolicitud = solicitudesRepository.getSolicitudById(id);
+        if (existingSolicitud == null || !existingSolicitud.getClienteId().equals(clienteId)) {
+            log.info("Solicitud con ID: {} no encontrada o no pertenece al cliente: {}", id, clienteId);
+            return false; // Solicitud no encontrada o no pertenece al cliente
+        }
+
+        // Actualizar los campos de la solicitud existente con los nuevos valores
+        existingSolicitud.setPlantillaId(solicitud.plantillaId());
+        existingSolicitud.setCorreoDestino(solicitud.correo_destino());
+        existingSolicitud.setAsunto(solicitud.asunto());
+        existingSolicitud.setCorreoCc(solicitud.correo_cc());
+        existingSolicitud.setCorreoBcc(solicitud.correo_bcc());
+        existingSolicitud.setProgramadoDate(solicitud.programado_date());
+
+        solicitudesRepository.save(existingSolicitud);
+        log.info("Solicitud con ID: {} actualizada exitosamente.", id);
+        return true; // Actualización exitosa
     }
 
+    @Transient
+    public SolicitudDTO getSolicitudById(long id, UUID clienteId){
+        Solicitudes solicitud = solicitudesRepository.getSolicitudById(id);
+        if (solicitud == null || !solicitud.getClienteId().equals(clienteId)) {
+            log.info("Solicitud con ID: {} no encontrada o no pertenece al cliente: {}", id, clienteId);
+            return null; // Solicitud no encontrada o no pertenece al cliente
+        }
+        
+        String status = quequeRepository.getStatusById(solicitud.getId());
 
-    private Queque crearQuequeEntity(Solicitudes solicitudEntity, String contentHTML) {
-        Queque quequeEntity = new Queque();
-        quequeEntity.setSolicitudId(solicitudEntity.getId());
-        quequeEntity.setClienteId(solicitudEntity.getClienteId());
-        quequeEntity.setPlantillaId(solicitudEntity.getPlantillaId());
-        quequeEntity.setAsunto(solicitudEntity.getAsunto());
-        quequeEntity.setContentHTML(contentHTML);
-        quequeEntity.setCorreoDestino(solicitudEntity.getCorreoDestino());
-        quequeEntity.setCorreoCc(solicitudEntity.getCorreoCc());
-        quequeEntity.setCorreoBcc(solicitudEntity.getCorreoBcc());
-        quequeEntity.setStatus(solicitudEntity.getEstado());
-        quequeEntity.setRetryCount(0);
-        quequeEntity.setProcesada(false);
+        // Convertir la entidad Solicitudes a DTO
+        SolicitudDTO solicitudDTO = new SolicitudDTO(
+            solicitud.getId(),
+            solicitud.getPlantillaId(),
+            solicitud.getAsunto(),
+            solicitud.getCorreoDestino(),
+            solicitud.getCorreoCc(),
+            solicitud.getCorreoBcc(),
+            solicitud.getProgramadoDate(),
+            status
+        );
+        
 
-        return quequeEntity;
+        return solicitudDTO;
     }
     
-    private Programados crearProgramadosEntity(Solicitudes solicitudEntity, String contentHTML) {
-        Programados programadosEntity = new Programados();
-        programadosEntity.setSolicitudId(solicitudEntity.getId());
-        programadosEntity.setClienteId(solicitudEntity.getClienteId());
-        programadosEntity.setPlantillaId(solicitudEntity.getPlantillaId());
-        programadosEntity.setAsunto(solicitudEntity.getAsunto());
-        programadosEntity.setContentHTML(contentHTML);
-        programadosEntity.setCorreoDestino(solicitudEntity.getCorreoDestino());
-        programadosEntity.setCorreoCc(solicitudEntity.getCorreoCc());
-        programadosEntity.setCorreoBcc(solicitudEntity.getCorreoBcc());
-        programadosEntity.setStatus(solicitudEntity.getEstado());
-        programadosEntity.setRetryCount(0);
-        programadosEntity.setProcesada(false);
-        programadosEntity.setProgramadoDate(solicitudEntity.getProgramadoDate());
-
-        return programadosEntity;
-    }
 }

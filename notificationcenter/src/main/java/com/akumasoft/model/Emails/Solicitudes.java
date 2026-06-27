@@ -22,15 +22,20 @@ public class Solicitudes {
     private UUID plantillaId;
     
     @Column(name = "cliente_id", nullable = false)
-    private long clienteId;
+    private UUID clienteId;
+
     @Column(name = "asunto", nullable = false)
     private String asunto;
+    
     @Column(name = "correo_destino", columnDefinition = "TEXT", nullable = false)
     private String correoDestino;
+    
     @Column(name = "correo_cc", columnDefinition = "TEXT")
     private String correoCc;
+    
     @Column(name = "correo_bcc", columnDefinition = "TEXT")
     private String correoBcc;
+    
     @Column(name = "programado_date")
     private LocalDateTime programadoDate;
 

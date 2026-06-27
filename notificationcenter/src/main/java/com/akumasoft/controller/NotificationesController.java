@@ -52,6 +52,13 @@ public class NotificationesController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> putMethodName(@PathVariable String id, @RequestBody String entity) {
+        //TODO: process PUT request
+        
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<SolicitudDTO> verSolicitud(@PathVariable long id, 
         @RequestHeader("Cliente-Id") UUID clienteId) {
@@ -84,18 +91,17 @@ public class NotificationesController {
     }
 
     @PutMapping("/plantilla/{id}")
-    public ResponseEntity<EditPlantillaRs> editarPlantilla(
+    public ResponseEntity<Void> editarPlantilla(
         @PathVariable UUID id,
         @RequestBody EditPlantillaRq request,
         @RequestHeader("Cliente-Id") UUID clienteId,
         @RequestHeader("Api-Key") String token
     ) {
-        plantillaService.editarPlantilla(id, request, clienteId);
-        EditPlantillaRs response = new EditPlantillaRs(
-            "Plantilla editada exitosamente",
-            "EDITADA"
-        );
-        return ResponseEntity.ok(response);
+        if (plantillaService.editarPlantilla(id, request, clienteId)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
     
 }
